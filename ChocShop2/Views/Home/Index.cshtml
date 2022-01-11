@@ -1,0 +1,22 @@
+﻿@model ChocShop2.Models.ProductsListViewModel;
+@{
+    ViewData["Title"] = "ChocShop Home Page";
+}
+
+<div class="text-center">
+    <h1 class="display-4">Welcome to ChocShop 2.0!</h1>
+    <p>Please click on the product below that you want to buy, add it to your basket, and then checkout.</p>
+</div>
+
+<div id="ProductsList">
+    <h2>Products</h2>
+    <ul>
+        @if (Model != null)
+        {
+            @foreach (var product in Model.Products)
+            {
+                <li><a asp-action="Product" asp-route-id="@product.Id">@product.Name</a></li>
+            }
+        }
+    </ul>
+</div>

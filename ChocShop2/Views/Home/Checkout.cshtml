@@ -1,0 +1,130 @@
+﻿@{
+    ViewData["Title"] = $"Ready to checkout";
+}
+
+<style>
+    .table-with-borders {
+        border: 1px solid black;
+    }
+    .table-with-borders th, .table-with-borders td {
+        border: 1px solid black;
+        padding:2px;
+    }
+    .table-with-borders td.hidden, .table-with-borders th.hidden {
+        display:none;
+    }
+</style>
+
+<div>
+    <h1>Ready to checkout</h1>
+    <p>Please review the items below, enter your payment details, and click the button to finalize your order.</p>
+</div>
+
+<form asp-action="Checkout" method="post">
+    <table id="productsTable" class="table-with-borders">
+        <tr>
+            <th class="hidden"></th><!--Hidden cell for id/qty-->
+            <th>Product Name</th>
+            <th>Qty</th>
+            <th>Price</th>
+        </tr>
+    </table>
+
+    <p>Total: $<span id="basketTotal">0.00</span></p>
+
+    <div class="form-group">
+        <label for="FullName">Full Name:</label>
+        <input class="form-control" name="FullName" required />
+    </div>
+    <div class="form-group">
+        <label for="FullAddress">Full Address:</label>
+        <textarea class="form-control" name="FullAddress" required rows="3"></textarea>
+    </div>
+    <div class="form-group">
+        <label for="CreditCardNumber">Credit Card Number:</label>
+        <input class="form-control" name="CreditCardNumber" required maxlength="16" />
+    </div>
+    <div class="form-group">
+        <label for="CreditCardExpiryYear">Credit Card Expiry Year:</label>
+        <input class="form-control" name="CreditCardExpiryYear" required maxlength="4" />
+    </div>
+    <div class="form-group">
+        <label for="CreditCardExpiryMonth">Credit Card Expiry Month:</label>
+        <input class="form-control" name="CreditCardExpiryMonth" required maxlength="2" />
+    </div>
+    <div class="form-group">
+        <label for="CreditCardCcv">Credit Card CCV:</label>
+        <input class="form-control" name="CreditCardCcv" required maxlength="4" />
+    </div>
+
+    <div class="mt-3">
+        <button class="btn btn-secondary" onclick="populateTestData();return false;">Populate Test Data</button>
+        <button class="btn btn-primary" id="PlaceOrder">Place order</button>
+    </div>
+</form>
+
+<script>
+    (function(){
+        let basket = JSON.parse(sessionStorage.getItem("basket")) || [];
+        let productsTable = document.querySelector("#productsTable");
+
+        let placeOrderButton = document.querySelector("#PlaceOrder");
+        if (basket.length == 0)
+            placeOrderButton.setAttribute("disabled", "disabled");
+        else
+            placeOrderButton.removeAttribute("disabled");
+
+        let total = 0;
+        for (let i = 0; i < basket.length; i++){
+            let basketItem = basket[i];
+
+            let row = document.createElement("tr");
+
+
+            let cellId = document.createElement("td");
+            cellId.classList.add("hidden");
+
+            let idinput = document.createElement("input");
+            idinput.type = "hidden";
+            idinput.name = "ProductIds";
+            idinput.value = basketItem.id;
+            cellId.appendChild(idinput);
+
+            let qtyinput = document.createElement("input");
+            qtyinput.type = "hidden";
+            qtyinput.name = "Quantities";
+            qtyinput.value = basketItem.qty;
+            cellId.appendChild(qtyinput);
+
+            row.appendChild(cellId);
+
+
+            addChildElement(row, "td", basketItem.productName);
+            addChildElement(row, "td", String(basketItem.qty));
+            addChildElement(row, "td", "$" + String(basketItem.price));
+
+            productsTable.appendChild(row);
+
+            total = total + basketItem.price * basketItem.qty;
+        }
+
+        let basketTotal = document.querySelector("#basketTotal");
+        basketTotal.innerHTML = total.toFixed(2);
+    })();
+
+    function addChildElement(parent, tagName, innerHtml){
+        let cell = document.createElement(tagName);
+        cell.innerHTML = innerHtml;
+        parent.appendChild(cell);
+    }
+
+    function populateTestData() {
+        document.querySelector("[name='FullName']").value = "John Smith";
+        document.querySelector("[name='FullAddress']").value = "123 First Street\r\nPlaceville\r\n1234";
+        document.querySelector("[name='CreditCardNumber']").value = "4444555566667777";
+        document.querySelector("[name='CreditCardExpiryYear']").value = "30";
+        document.querySelector("[name='CreditCardExpiryMonth']").value = "12";
+        document.querySelector("[name='CreditCardCcv']").value = "123";
+    }
+
+</script>

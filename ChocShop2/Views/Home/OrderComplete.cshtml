@@ -1,0 +1,13 @@
+﻿@model ChocShop2.Models.OrderCompleteViewModel;
+@{
+    ViewData["Title"] = $"Order Complete";
+}
+
+<div>
+    <h1>Your order is complete!</h1>
+    <p>Order Number: @Model.OrderNumber</p>
+</div>
+
+<script>
+    sessionStorage.clear();
+</script>

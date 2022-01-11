@@ -1,0 +1,68 @@
+﻿@model ChocShop2.Models.ProductDetailsViewModel;
+@{
+    ViewData["Title"] = $"Product Details for {Model.Name}";
+}
+
+<div>
+    <input id="ProductId" name="ProductId" type="hidden" value="@Model.Id" />
+    <h1><span id="productName">@Model.Name</span></h1>
+    <p>Price: $<span id="price">@Model.Price</span></p>
+    <button id="AddToBasket">Add to basket</button>
+    <p>Quantity in basket: <span id="basketQty">0</span></p>
+</div>
+
+<script>
+    let basket = [];
+    let basketQty = document.querySelector("#basketQty");
+    let selectedProductId = document.querySelector("#ProductId").value;
+
+    (function(){
+        let addToBasketButton = document.querySelector("#AddToBasket");
+        addToBasketButton.addEventListener("click", AddItemToBasket);
+
+        let basketString = sessionStorage.getItem("basket");
+        if (basketString){
+            basket = JSON.parse(basketString);
+        }
+        console.log(basket);
+
+        let existingProduct = getBasketProduct(selectedProductId);
+        if (existingProduct) {
+            basketQty.innerHTML = existingProduct.qty;
+        } else {
+            basketQty.innerHTML = 0;
+        }
+    })();
+
+    function AddItemToBasket(e){
+        let existingProduct = getBasketProduct(selectedProductId);
+        if (existingProduct) {
+            existingProduct.qty++;
+        } else {
+            let price = Number(document.querySelector("#price").innerHTML);
+            let productName = document.querySelector("#productName").innerHTML;
+            basket.push({ id: selectedProductId, qty: 1, price: price, productName: productName });
+        }
+
+        sessionStorage.setItem("basket", JSON.stringify(basket));
+
+        if (existingProduct) {
+            basketQty.innerHTML = existingProduct.qty;
+        } else {
+            basketQty.innerHTML = 1;
+        }
+
+        e.preventDefault();
+        return false;
+    }
+
+    function getBasketProduct(productId) {
+        for (let i = 0; i < basket.length; i++) {
+            let prod = basket[i];
+            if (prod.id == productId) {
+                return prod;
+            }
+        }
+        return null;
+    }
+</script>
